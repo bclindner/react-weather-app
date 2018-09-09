@@ -77,19 +77,6 @@ class WeatherApp extends React.Component {
   }
 }
 
-// Bootstrap row with attribution information.
-class WeatherFooter extends React.Component {
-  render () {
-    return (
-      <div class='row'>
-        <div class='col'>
-          <p class='text-center'>App by Brian Lindner, 2018. Made with <a href='https://reactjs.org'>React</a> and <a href='https://getbootstrap.com'>Bootstrap</a>, and the <a href='https://openweathermap.org/'>OpenWeatherMap</a> API. </p>
-        </div>
-      </div>
-    )
-  }
-}
-
 // Bootstrap row displaying a title and the search bar.
 class WeatherHeader extends React.Component {
   render () {
@@ -102,22 +89,6 @@ class WeatherHeader extends React.Component {
           <WeatherSearchBar handleZIPChange={this.props.handleZIPChange} />
         </div>
       </header>
-    )
-  }
-}
-
-// Bootstrap row that displays a WeatherIcon and WeatherDetails.
-class WeatherDisplay extends React.Component {
-  render () {
-    return (
-      <div class='row'>
-        <div class='col-md-3'>
-          <WeatherIcon id={this.props.currentWeather.weather[0].icon} />
-        </div>
-        <div class='col-md-9'>
-          <WeatherDetails data={this.props.currentWeather} />
-        </div>
-      </div>
     )
   }
 }
@@ -143,6 +114,32 @@ class WeatherSearchBar extends React.Component {
   render () {
     return (
       <input class='form-control form-control-lg text-center text-md-left' onInput={this.verify} maxLength='5' placeholder='Type in a ZIP code...' />
+    )
+  }
+}
+
+
+// Bootstrap row that displays a WeatherIcon and WeatherDetails.
+class WeatherDisplay extends React.Component {
+  render () {
+    return (
+      <div class='row'>
+        <div class='col-md-3'>
+          <WeatherIcon id={this.props.currentWeather.weather[0].icon} />
+        </div>
+        <div class='col-md-9'>
+          <WeatherDetails data={this.props.currentWeather} />
+        </div>
+      </div>
+    )
+  }
+}
+
+// Simple helper component that renders an OpenWeatherMap weather status icon roughly fitted to the width of the element.
+class WeatherIcon extends React.Component {
+  render () {
+    return (
+      <img src={'https://openweathermap.org/img/w/' + this.props.id + '.png'} width='350' height='350' class='img-fluid mx-auto d-block' />
     )
   }
 }
@@ -176,15 +173,6 @@ class WeatherDetails extends React.Component {
         <h2 class='text-center text-md-left'>High {temp.high.f}&deg;F <small class='font-weight-light'>{temp.high.c}&deg;C</small></h2>
         <h2 class='text-center text-md-left'>Low {temp.low.f}&deg;F <small class='font-weight-light'>{temp.low.c}&deg;C</small></h2>
       </div>
-    )
-  }
-  }
-
-// Simple helper component that renders an OpenWeatherMap weather status icon roughly fitted to the width of the element.
-class WeatherIcon extends React.Component {
-  render () {
-    return (
-      <img src={'https://openweathermap.org/img/w/' + this.props.id + '.png'} width='350' height='350' class='img-fluid mx-auto d-block' />
     )
   }
 }
@@ -243,6 +231,19 @@ class WeatherForecastCard extends React.Component {
             <h4>{temp.low.f}&deg;F / {temp.high.f}&deg;F</h4>
             <h5 class='font-weight-light'>{temp.low.c}&deg;C / {temp.high.c}&deg;C</h5>
           </div>
+        </div>
+      </div>
+    )
+  }
+}
+
+// Bootstrap row with attribution information.
+class WeatherFooter extends React.Component {
+  render () {
+    return (
+      <div class='row'>
+        <div class='col'>
+          <p class='text-center'>App by Brian Lindner, 2018. Made with <a href='https://reactjs.org'>React</a> and <a href='https://getbootstrap.com'>Bootstrap</a>, and the <a href='https://openweathermap.org/'>OpenWeatherMap</a> API. </p>
         </div>
       </div>
     )
