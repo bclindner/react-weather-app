@@ -1,5 +1,5 @@
-// Example data.
-const example = {
+// Placeholder data.
+const placeholder = {
   'dt': 0,
   'weather': [
     {
@@ -25,17 +25,26 @@ function toFahrenheit (temp) {
   return ((temp - 273.15) * (9 / 5) + 32).toFixed(1)
 }
 
+// Base component for the application.
 class WeatherApp extends React.Component {
   constructor (props) {
     super(props)
+    // Set our state (the stuff that changes, mostly)
     this.state = {
       zip: 30458,
-      currentWeather: example,
-      forecast: [example, example, example, example]
+      currentWeather: placeholder,
+      forecast: [placeholder, placeholder, placeholder, placeholder]
     }
+    // Bind functions that will be passed to child components
     this.handleZIPChange = this.handleZIPChange.bind(this)
   }
+  // Calls the OpenWeatherMap API to get new weather and forecast info, and updates the state accordingly.
   update () {
+    // Set the data to placeholder (so if an API call fails, it won't display data for the previous call)
+    this.setState({
+      currentWeather: placeholder,
+      forecast: [placeholder, placeholder, placeholder, placeholder]
+    })
     fetch('https://api.openweathermap.org/data/2.5/weather?appid=' + this.props.apiKey + '&zip=' + this.state.zip)
       .then(res => res.json())
       .then(json => this.setState({currentWeather: json}))
@@ -43,11 +52,13 @@ class WeatherApp extends React.Component {
       .then(res => res.json())
       .then(json => this.setState({forecast: json.list}))
   }
+  // Changes the ZIP code for the weather, then refreshes OpenWeatherMap information.
   handleZIPChange (newZip) {
     this.setState({
       zip: newZip
     }, this.update)
   }
+  // Run an initial update when the component mounts.
   componentDidMount () {
     this.update()
   }
@@ -66,6 +77,7 @@ class WeatherApp extends React.Component {
   }
 }
 
+// Bootstrap row with attribution information.
 class WeatherFooter extends React.Component {
   render () {
     return (
@@ -78,6 +90,7 @@ class WeatherFooter extends React.Component {
   }
 }
 
+// Bootstrap row displaying a title and the search bar.
 class WeatherHeader extends React.Component {
   render () {
     return (
@@ -93,6 +106,7 @@ class WeatherHeader extends React.Component {
   }
 }
 
+// Bootstrap row that displays a WeatherIcon and WeatherDetails.
 class WeatherDisplay extends React.Component {
   render () {
     return (
@@ -108,15 +122,18 @@ class WeatherDisplay extends React.Component {
   }
 }
 
+// ZIP code entry field which updates the WeatherApp component with new ZIPs
 class WeatherSearchBar extends React.Component {
   constructor (props) {
     super(props)
+    // Bind the verify function so it can be used in the render
     this.verify = this.verify.bind(this)
   }
+  // Verify the data, then update the ZIP if valid.
   verify (event) {
     let el = event.target
     let value = el.value
-    if (value.length != 5) {
+    if (value.length !== 5) {
       el.classList.add('is-invalid')
     } else {
       el.classList.remove('is-invalid')
@@ -130,8 +147,10 @@ class WeatherSearchBar extends React.Component {
   }
 }
 
+// List of weather details based on an OpenWeatherMap weather object.
 class WeatherDetails extends React.Component {
   render () {
+    // Helper object for our temperatures.
     let temp = {
       current: {
         k: this.props.data.main.temp,
@@ -150,7 +169,7 @@ class WeatherDetails extends React.Component {
       }
     }
     return (
-      <div class='col-md-9'>
+      <div>
         <h4 class='text-center text-md-left'>{this.props.data.name}</h4>
         <h1 class='text-center text-md-left'>{this.props.data.weather[0].main}</h1>
         <h2 class='text-center text-md-left'>{temp.current.f}&deg;F <small class='font-weight-light'>{temp.current.c}&deg;C</small></h2>
@@ -159,18 +178,18 @@ class WeatherDetails extends React.Component {
       </div>
     )
   }
-}
+  }
 
+// Simple helper component that renders an OpenWeatherMap weather status icon roughly fitted to the width of the element.
 class WeatherIcon extends React.Component {
   render () {
     return (
-      <div >
-        <img src={'https://openweathermap.org/img/w/' + this.props.id + '.png'} width='350' height='350' class='img-fluid mx-auto d-block' />
-      </div>
+      <img src={'https://openweathermap.org/img/w/' + this.props.id + '.png'} width='350' height='350' class='img-fluid mx-auto d-block' />
     )
   }
 }
 
+// Bootstrap row that displays a header and multiple WeatherForecastCards.
 class WeatherForecastList extends React.Component {
   render () {
     return (
@@ -199,8 +218,10 @@ class WeatherForecastList extends React.Component {
   }
 }
 
+// Bootstrap card that takes an OpenWeatherMap weather object and displays key info from it.
 class WeatherForecastCard extends React.Component {
   render () {
+    // Helper object for our temperatures.
     let temp = {
       high: {
         f: toFahrenheit(this.props.data.main.temp_max),
