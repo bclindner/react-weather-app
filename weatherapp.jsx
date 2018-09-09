@@ -45,9 +45,11 @@ class WeatherApp extends React.Component {
       currentWeather: placeholder,
       forecast: [placeholder, placeholder, placeholder, placeholder]
     })
+    // Get weather data, convert to JSON, then set it in the state
     fetch('https://api.openweathermap.org/data/2.5/weather?appid=' + this.props.apiKey + '&zip=' + this.state.zip)
       .then(res => res.json())
       .then(json => this.setState({currentWeather: json}))
+    // Same as above but with forecast data.
     fetch('https://api.openweathermap.org/data/2.5/forecast?appid=' + this.props.apiKey + '&zip=' + this.state.zip)
       .then(res => res.json())
       .then(json => this.setState({forecast: json.list}))
@@ -104,6 +106,7 @@ class WeatherSearchBar extends React.Component {
   verify (event) {
     let el = event.target
     let value = el.value
+    // ZIP codes are always 5 digits
     if (value.length !== 5) {
       el.classList.add('is-invalid')
     } else {
