@@ -31,28 +31,39 @@ class WeatherApp extends React.Component {
     super(props)
     // Set our state (the stuff that changes, mostly)
     this.state = {
+      apiKey: this.props.apiKey,
       zip: 30458,
       currentWeather: placeholder,
-      forecast: [placeholder, placeholder, placeholder, placeholder]
+      forecast: {
+        list: [placeholder, placeholder, placeholder, placeholder]
+      }
     }
     // Bind functions that will be passed to child components
     this.handleZIPChange = this.handleZIPChange.bind(this)
+    this.updateAPIKey = this.updateAPIKey.bind(this)
   }
   // Calls the OpenWeatherMap API to get new weather and forecast info, and updates the state accordingly.
   update () {
     // Set the data to placeholder (so if an API call fails, it won't display data for the previous call)
     this.setState({
       currentWeather: placeholder,
-      forecast: [placeholder, placeholder, placeholder, placeholder]
+      forecast: {
+        list: [placeholder, placeholder, placeholder, placeholder]
+      }
     })
-    // Get weather data, convert to JSON, then set it in the state
-    fetch('https://api.openweathermap.org/data/2.5/weather?appid=' + this.props.apiKey + '&zip=' + this.state.zip)
-      .then(res => res.json())
-      .then(json => this.setState({currentWeather: json}))
-    // Same as above but with forecast data.
-    fetch('https://api.openweathermap.org/data/2.5/forecast?appid=' + this.props.apiKey + '&zip=' + this.state.zip)
-      .then(res => res.json())
-      .then(json => this.setState({forecast: json.list}))
+    if(this.state.apiKey.length === 32) {
+      // Get weather data, convert to JSON, then set it in the state
+      fetch('https://api.openweathermap.org/data/2.5/weather?appid=' + this.state.apiKey + '&zip=' + this.state.zip)
+        .then(res => res.json())
+        .then(json => this.setState({currentWeather: json}))
+      // Same as above but with forecast data.
+      fetch('https://api.openweathermap.org/data/2.5/forecast?appid=' + this.state.apiKey + '&zip=' + this.state.zip)
+        .then(res => res.json())
+        .then(json => this.setState({forecast: json}))
+      return false
+    } else {
+      return true
+    }
   }
   // Changes the ZIP code for the weather, then refreshes OpenWeatherMap information.
   handleZIPChange (newZip) {
@@ -60,20 +71,75 @@ class WeatherApp extends React.Component {
       zip: newZip
     }, this.update)
   }
+  // Changes the API key, then refreshes OpenWeatherMap information.
+  updateAPIKey (newAPIKey) {
+    this.setState({
+      apiKey: newAPIKey
+    }, this.update)
+  }
   // Run an initial update when the component mounts.
   componentDidMount () {
     this.update()
   }
   render () {
+    if (this.state.apiKey.length !== 32) {
+      // If there is no API key (or an invalid API key), return an APIInputDialog
+      return (
+        <div class='container border shadow my-3 p-3'>
+          <APIInputDialog updateAPIKey={this.updateAPIKey} />
+          <hr />
+          <WeatherFooter />
+        </div>
+      )
+    } else {
+      // Otherwise return the app proper
+      return (
+        <div class='container border shadow my-3 p-3'>
+          <WeatherHeader handleZIPChange={this.handleZIPChange} />
+          <hr />
+          <WeatherDisplay currentWeather={this.state.currentWeather} />
+          <hr />
+          <WeatherForecastList data={this.state.forecast} />
+          <hr />
+          <WeatherFooter />
+        </div>
+      )
+    }
+  }
+}
+
+class APIInputDialog extends React.Component {
+  constructor (props) {
+    super(props)
+    this.handleSubmit = this.handleSubmit.bind(this)
+  }
+  handleSubmit (event) {
+    event.preventDefault()
+    // Get form data
+    let formData = new FormData(event.target)
+    let key = formData.get('apiKey')
+    // Validate the key: must be 32 characters
+    if (key.length === 32) {
+      // Update the key
+      this.props.updateAPIKey(key)
+    }
+  }
+  render () {
     return (
-      <div class='container border shadow my-3 p-3'>
-        <WeatherHeader handleZIPChange={this.handleZIPChange} />
-        <hr />
-        <WeatherDisplay currentWeather={this.state.currentWeather} />
-        <hr />
-        <WeatherForecastList data={this.state.forecast} />
-        <hr />
-        <WeatherFooter />
+      <div>
+        <div class='row'>
+          <div class='col'>
+            <h3 class='text-center font-weight-light'>Please specify an OpenWeatherMap API key.</h3>
+          </div>
+        </div>
+        <div class='row'>
+          <div class='col text-center'>
+            <form onSubmit={this.handleSubmit}>
+              <input name='apiKey' type='text' class='form-control form-control-lg my-3 text-center' maxLength='32' />
+              <input name='submit' type='submit' value='Submit' class='btn btn-primary' />
+            </form>
+          </div>
+        </div>
       </div>
     )
   }
@@ -120,7 +186,6 @@ class WeatherSearchBar extends React.Component {
     )
   }
 }
-
 
 // Bootstrap row that displays a WeatherIcon and WeatherDetails.
 class WeatherDisplay extends React.Component {
@@ -192,16 +257,16 @@ class WeatherForecastList extends React.Component {
         </div>
         <div class='row'>
           <div class='col-md-3 my-3'>
-            <WeatherForecastCard data={this.props.data[0]} />
+            <WeatherForecastCard data={this.props.data.list[0]} />
           </div>
           <div class='col-md-3 my-3'>
-            <WeatherForecastCard data={this.props.data[1]} />
+            <WeatherForecastCard data={this.props.data.list[1]} />
           </div>
           <div class='col-md-3 my-3'>
-            <WeatherForecastCard data={this.props.data[2]} />
+            <WeatherForecastCard data={this.props.data.list[2]} />
           </div>
           <div class='col-md-3 my-3'>
-            <WeatherForecastCard data={this.props.data[3]} />
+            <WeatherForecastCard data={this.props.data.list[3]} />
           </div>
         </div>
       </div>
