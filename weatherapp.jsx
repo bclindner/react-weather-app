@@ -297,7 +297,6 @@ class WeatherForecastCard extends React.Component {
         c: toCelsius(this.props.data.main.temp_min)
       }
     }
-    console.log(this.props.data)
     let hour = new Date(this.props.data.dt * 1000).getHours()
     return (
       <div class='card'>
