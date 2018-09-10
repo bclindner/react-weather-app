@@ -5,13 +5,13 @@ const placeholder = {
     {
       'main': '...',
       'description': '...',
-      'icon': '01d'
+      'icon': '03d'
     }
   ],
   'main': {
-    'temp': 0,
-    'temp_min': 0,
-    'temp_max': 0
+    'temp': 273.15,
+    'temp_min': 273.15,
+    'temp_max': 273.15
   },
   'name': '...'
 }
@@ -33,7 +33,7 @@ class WeatherApp extends React.Component {
     this.state = {
       apiKey: this.props.apiKey,
       zip: 30458,
-      currentWeather: placeholder,
+      current: placeholder,
       forecast: {
         list: [placeholder, placeholder, placeholder, placeholder]
       }
@@ -46,24 +46,33 @@ class WeatherApp extends React.Component {
   update () {
     // Set the data to placeholder (so if an API call fails, it won't display data for the previous call)
     this.setState({
-      currentWeather: placeholder,
+      current: placeholder,
       forecast: {
         list: [placeholder, placeholder, placeholder, placeholder]
       }
+    }, () => {
+      if (this.state.apiKey.length === 32) {
+        // Get weather data, convert to JSON, then set it in the state
+        fetch('https://api.openweathermap.org/data/2.5/weather?appid=' + this.state.apiKey + '&zip=' + this.state.zip)
+          .then(res => res.json())
+          .then(currentjson => {
+            if (currentjson.cod === 200) {
+              this.setState({current: currentjson})
+              return true
+            } else {
+              return false
+            }
+          })
+        // Same as above but with forecast data.
+        fetch('https://api.openweathermap.org/data/2.5/forecast?appid=' + this.state.apiKey + '&zip=' + this.state.zip)
+          .then(res => res.json())
+          .then(forecastjson => {
+            if (forecastjson.cod === '200') {
+              this.setState({forecast: forecastjson})
+            }
+          })
+      }
     })
-    if(this.state.apiKey.length === 32) {
-      // Get weather data, convert to JSON, then set it in the state
-      fetch('https://api.openweathermap.org/data/2.5/weather?appid=' + this.state.apiKey + '&zip=' + this.state.zip)
-        .then(res => res.json())
-        .then(json => this.setState({currentWeather: json}))
-      // Same as above but with forecast data.
-      fetch('https://api.openweathermap.org/data/2.5/forecast?appid=' + this.state.apiKey + '&zip=' + this.state.zip)
-        .then(res => res.json())
-        .then(json => this.setState({forecast: json}))
-      return false
-    } else {
-      return true
-    }
   }
   // Changes the ZIP code for the weather, then refreshes OpenWeatherMap information.
   handleZIPChange (newZip) {
@@ -97,7 +106,7 @@ class WeatherApp extends React.Component {
         <div class='container border shadow my-3 p-3'>
           <WeatherHeader handleZIPChange={this.handleZIPChange} />
           <hr />
-          <WeatherDisplay currentWeather={this.state.currentWeather} />
+          <WeatherDisplay current={this.state.current} />
           <hr />
           <WeatherForecastList data={this.state.forecast} />
           <hr />
@@ -173,7 +182,7 @@ class WeatherSearchBar extends React.Component {
     let el = event.target
     let value = el.value
     // ZIP codes are always 5 digits
-    if (value.length !== 5) {
+    if (!value.match(/^[0-9]{5}$/)) {
       el.classList.add('is-invalid')
     } else {
       el.classList.remove('is-invalid')
@@ -193,10 +202,10 @@ class WeatherDisplay extends React.Component {
     return (
       <div class='row'>
         <div class='col-md-3'>
-          <WeatherIcon id={this.props.currentWeather.weather[0].icon} />
+          <WeatherIcon id={this.props.current.weather[0].icon} />
         </div>
         <div class='col-md-9'>
-          <WeatherDetails data={this.props.currentWeather} />
+          <WeatherDetails data={this.props.current} />
         </div>
       </div>
     )
@@ -288,6 +297,7 @@ class WeatherForecastCard extends React.Component {
         c: toCelsius(this.props.data.main.temp_min)
       }
     }
+    console.log(this.props.data)
     let hour = new Date(this.props.data.dt * 1000).getHours()
     return (
       <div class='card'>
