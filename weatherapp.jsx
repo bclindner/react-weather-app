@@ -324,7 +324,7 @@ class WeatherFooter extends React.Component {
           <p class='text-center'>
             App by Brian Lindner, 2018.
             Made with <a href='https://reactjs.org'>React</a> and <a href='https://getbootstrap.com'>Bootstrap</a>, and the <a href='https://openweathermap.org/'>OpenWeatherMap</a> API.
-            Source available on <a href="https://github.com/bclindner/react-weather-app">GitHub</a> and <a href="https://gitlab.com/bclindner/react-weather-app">GitLab</a>.</p>
+            Source available on <a href='https://github.com/bclindner/react-weather-app'>GitHub</a> and <a href='https://gitlab.com/bclindner/react-weather-app'>GitLab</a>.</p>
         </div>
       </div>
     )
